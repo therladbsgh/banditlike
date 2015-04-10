@@ -12,6 +12,7 @@ public class World {
 	
 	public int width() { return width; }
 	public int height() { return height; }
+	public List<Creature> creatures() { return creatures; }
 	
 	public World(Tile[][] tiles){
 		this.tiles = tiles;
@@ -36,11 +37,7 @@ public class World {
 		return tile(x,y).color();
 	}
 	
-	public void dig(int x, int y){
-		if(tile(x,y).isDiggable()){
-			tiles[x][y] = Tile.FLOOR;
-		}
-	}
+	//CREATURES AND CREATURE ACTIONS------------------------------------------------------------------------
 	
 	public void addAtEmptyLocation(Creature creature){
 		int x;
@@ -63,6 +60,23 @@ public class World {
 			}
 		}
 		return null;
+	}
+	
+	public void remove(Creature other){
+		creatures.remove(other);
+	}
+	
+	public void dig(int x, int y){
+		if(tile(x,y).isDiggable()){
+			tiles[x][y] = Tile.FLOOR;
+		}
+	}
+	
+	public void update(){
+		List<Creature> toUpdate = new ArrayList<Creature>(creatures);
+		for(Creature creature : toUpdate){
+			creature.update();
+		}
 	}
 
 }

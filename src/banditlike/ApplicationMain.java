@@ -13,9 +13,12 @@ public class ApplicationMain extends JFrame implements KeyListener {
 	private AsciiPanel terminal;
 	private Screen screen;
 	
+	public final int GAMEWIDTH = 120;
+	public final int GAMEHEIGHT = 43;
+	
 	public ApplicationMain(){
 		super("Banditlike");
-		terminal = new AsciiPanel(120,40);
+		terminal = new AsciiPanel(GAMEWIDTH, GAMEHEIGHT);
 		add(terminal);
 		pack();
 		screen = new StartScreen();

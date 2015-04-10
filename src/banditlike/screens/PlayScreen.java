@@ -1,7 +1,8 @@
 package banditlike.screens;
 
 import java.awt.event.KeyEvent;
-
+import java.util.ArrayList;
+import java.util.List;
 import banditlike.Creature;
 import banditlike.CreatureFactory;
 import banditlike.World;
@@ -11,27 +12,40 @@ import asciiPanel.AsciiPanel;
 public class PlayScreen implements Screen {
 	
 	private World world;
-		private int screenHeight;
-		private int screenWidth;
+	private int screenHeight;
+	private int screenWidth;
 	
 	private Creature player;
+	private List<String> messages;
 	
 	public PlayScreen(){
 		screenWidth = 100;
 		screenHeight = 40;
+		messages = new ArrayList<String>();
 		createWorld();
+		
 		CreatureFactory creatureFactory = new CreatureFactory(world);
-		player = creatureFactory.newPlayer();
+		createCreatures(creatureFactory);
+	}
+	
+	private void createCreatures(CreatureFactory creatureFactory){
+		player = creatureFactory.newPlayer(messages);
+		
+		for(int i = 0; i < 8; i++){
+			creatureFactory.newFungus();
+		}
 	}
 
 	@Override
 	public void displayOutput(AsciiPanel terminal) {
-//		terminal.write("You are having fun.", 1, 1);
-//		terminal.writeCenter("-- press [escape] to lose or [enter] to win --", 22);
 		int left = getScrollX();
 		int top = getScrollY();
 		displayTiles(terminal, left, top);
 		terminal.write(player.glyph(), player.x - left, player.y - top, player.color());
+		String stats = String.format(" %3d/%3d hp", player.hp(), player.maxHp());
+		terminal.write(" Stats", screenWidth, 1);
+		terminal.write(stats, screenWidth, 3);
+		displayMessages(terminal, messages);
 	}
 
 	@Override
@@ -70,12 +84,23 @@ public class PlayScreen implements Screen {
 			player.moveBy( 1, 1); 
 			break;
 		}
+		world.update();
 		
 		return this;
 	}
 	
+	//AUXILIARY METHODS------------------------------------------------------------------------------------------
+	
 	private void createWorld(){
 		world = new WorldBuilder(200,50).makeCaves().build();
+	}
+	
+	private void displayMessages(AsciiPanel terminal, List<String> messages) {
+	    int top = screenHeight + 3 - messages.size();
+	    for (int i = 0; i < messages.size(); i++){
+	        terminal.writeCenter(messages.get(i), top + i);
+	    }
+	    messages.clear();
 	}
 	
 	public int getScrollX(){
@@ -87,19 +112,34 @@ public class PlayScreen implements Screen {
 	}
 	
 	private void displayTiles(AsciiPanel terminal, int left, int top){
+		//Better code. Places tiles first, and then creatures. Loops (Width * Height) + creatures times.
 		for(int x = 0; x < screenWidth; x++){
 			for(int y = 0; y < screenHeight; y++){
 				int wx = x + left;
 				int wy = y + top;
-				
-				Creature creature = world.creature(wx,wy);
-				if(creature != null){
-					terminal.write(creature.glyph(), creature.x - left, creature.y - top, creature.color());
-				} else {
-					terminal.write(world.glyph(wx,wy), x, y, world.color(wx,wy));
-				}
+				terminal.write(world.glyph(wx,wy), x, y, world.color(wx, wy));
 			}
 		}
+		for(Creature c: world.creatures()){
+			if((c.x >= left && c.x < left + screenWidth) && (c.y >= top && c.y < top + screenHeight)){
+				terminal.write(c.glyph(), c.x - left, c.y - top, c.color());
+			}
+		}
+		
+//		Old, inefficient code. Loops (Width * Height * Creatures) times.
+//		for(int x = 0; x < screenWidth; x++){
+//			for(int y = 0; y < screenHeight; y++){
+//				int wx = x + left;
+//				int wy = y + top;
+//				
+//				Creature creature = world.creature(wx,wy);
+//				if(creature != null){
+//					terminal.write(creature.glyph(), creature.x - left, creature.y - top, creature.color());
+//				} else {
+//					terminal.write(world.glyph(wx,wy), x, y, world.color(wx,wy));
+//				}
+//			}
+//		}
 	}
 	
 }

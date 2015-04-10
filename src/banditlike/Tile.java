@@ -11,8 +11,8 @@ public enum Tile {
 	private char glyph;
 	private Color color;
 	
-	public char getGlyph(){ return glyph; }
-	public Color getColor(){ return color; }
+	public char glyph(){ return glyph; }
+	public Color color(){ return color; }
 	
 	Tile(char glyph, Color color){
 		this.glyph = glyph;

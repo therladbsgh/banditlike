@@ -1,6 +1,9 @@
 package banditlike.screens;
 
 import java.awt.event.KeyEvent;
+
+import banditlike.Creature;
+import banditlike.CreatureFactory;
 import banditlike.World;
 import banditlike.WorldBuilder;
 import asciiPanel.AsciiPanel;
@@ -8,15 +11,17 @@ import asciiPanel.AsciiPanel;
 public class PlayScreen implements Screen {
 	
 	private World world;
-		private int centerX;
-		private int centerY;
 		private int screenHeight;
 		private int screenWidth;
 	
+	private Creature player;
+	
 	public PlayScreen(){
-		screenWidth = 80;
-		screenHeight = 24;
+		screenWidth = 100;
+		screenHeight = 40;
 		createWorld();
+		CreatureFactory creatureFactory = new CreatureFactory(world);
+		player = creatureFactory.newPlayer();
 	}
 
 	@Override
@@ -26,7 +31,7 @@ public class PlayScreen implements Screen {
 		int left = getScrollX();
 		int top = getScrollY();
 		displayTiles(terminal, left, top);
-		terminal.write('X', centerX - left, centerY - top);
+		terminal.write(player.glyph(), player.x - left, player.y - top, player.color());
 	}
 
 	@Override
@@ -38,31 +43,31 @@ public class PlayScreen implements Screen {
 			return new WinScreen();
 		case KeyEvent.VK_LEFT:
 		case KeyEvent.VK_H: 
-			scrollBy(-1, 0);
+			player.moveBy(-1, 0);
 			break;
 		case KeyEvent.VK_RIGHT:
 		case KeyEvent.VK_L: 
-			scrollBy( 1, 0); 
+			player.moveBy( 1, 0); 
 			break;
 		case KeyEvent.VK_UP:
 		case KeyEvent.VK_K: 
-			scrollBy( 0,-1); 
+			player.moveBy( 0,-1); 
 			break;
 		case KeyEvent.VK_DOWN:
 		case KeyEvent.VK_J: 
-			scrollBy( 0, 1); 
+			player.moveBy( 0, 1); 
 			break;
 		case KeyEvent.VK_Y: 
-			scrollBy(-1,-1); 
+			player.moveBy(-1,-1); 
 			break;
 		case KeyEvent.VK_U: 
-			scrollBy( 1,-1); 
+			player.moveBy( 1,-1); 
 			break;
 		case KeyEvent.VK_B: 
-			scrollBy(-1, 1); 
+			player.moveBy(-1, 1); 
 			break;
 		case KeyEvent.VK_N: 
-			scrollBy( 1, 1); 
+			player.moveBy( 1, 1); 
 			break;
 		}
 		
@@ -70,15 +75,15 @@ public class PlayScreen implements Screen {
 	}
 	
 	private void createWorld(){
-		world = new WorldBuilder(90,31).makeCaves().build();
+		world = new WorldBuilder(200,50).makeCaves().build();
 	}
 	
 	public int getScrollX(){
-		return Math.max(0, Math.min(centerX - screenWidth / 2, world.width() - screenWidth));
+		return Math.max(0, Math.min(player.x - screenWidth / 2, world.width() - screenWidth));
 	}
 	
 	public int getScrollY(){
-		return Math.max(0, Math.min(centerY - screenHeight / 2, world.height() - screenHeight));
+		return Math.max(0, Math.min(player.y - screenHeight / 2, world.height() - screenHeight));
 	}
 	
 	private void displayTiles(AsciiPanel terminal, int left, int top){
@@ -87,13 +92,14 @@ public class PlayScreen implements Screen {
 				int wx = x + left;
 				int wy = y + top;
 				
-				terminal.write(world.glyph(wx,wy), x, y, world.color(wx,wy));
+				Creature creature = world.creature(wx,wy);
+				if(creature != null){
+					terminal.write(creature.glyph(), creature.x - left, creature.y - top, creature.color());
+				} else {
+					terminal.write(world.glyph(wx,wy), x, y, world.color(wx,wy));
+				}
 			}
 		}
 	}
 	
-	private void scrollBy(int mx, int my){
-		centerX = Math.max(0, Math.min(centerX + mx, world.width() - 1));
-        centerY = Math.max(0, Math.min(centerY + my, world.height() - 1));
-	}
 }

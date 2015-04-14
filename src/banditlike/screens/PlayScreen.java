@@ -1,10 +1,12 @@
 package banditlike.screens;
 
+import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 import banditlike.Creature;
 import banditlike.CreatureFactory;
+import banditlike.FieldOfView;
 import banditlike.World;
 import banditlike.WorldBuilder;
 import asciiPanel.AsciiPanel;
@@ -17,19 +19,21 @@ public class PlayScreen implements Screen {
 	
 	private Creature player;
 	private List<String> messages;
+	private FieldOfView fov;
 	
 	public PlayScreen(){
 		screenWidth = 100;
 		screenHeight = 40;
 		messages = new ArrayList<String>();
 		createWorld();
+		fov = new FieldOfView(world);
 		
 		CreatureFactory creatureFactory = new CreatureFactory(world);
 		createCreatures(creatureFactory);
 	}
 	
 	private void createCreatures(CreatureFactory creatureFactory){
-		player = creatureFactory.newPlayer(messages);
+		player = creatureFactory.newPlayer(messages, fov);
 		
 		for(int z = 0; z < world.depth(); z++){
 			for(int i = 0; i < 8; i++){
@@ -125,33 +129,45 @@ public class PlayScreen implements Screen {
 	}
 	
 	private void displayTiles(AsciiPanel terminal, int left, int top){
+		fov.update(player.x, player.y, player.z, player.visionRadius());
+		
 		//Better code. Places tiles first, and then creatures. Loops (Width * Height) + creatures times.
+		//For FOV.
 		for(int x = 0; x < screenWidth; x++){
 			for(int y = 0; y < screenHeight; y++){
 				int wx = x + left;
 				int wy = y + top;
-				terminal.write(world.glyph(wx,wy,player.z), x, y, world.color(wx, wy, player.z));
+				
+				if(player.canSee(wx,wy,player.z)){
+					terminal.write(world.glyph(wx,wy,player.z), x, y, world.color(wx, wy, player.z));
+				}else{
+					terminal.write(fov.tile(wx, wy, player.z).glyph(), x, y, Color.darkGray);
+				}
 			}
 		}
 		for(Creature c: world.creatures()){
 			if((c.x >= left && c.x < left + screenWidth) 
 					&& (c.y >= top && c.y < top + screenHeight)
 					&& (c.z == player.z)){
-				terminal.write(c.glyph(), c.x - left, c.y - top, c.color());
+				if(player.canSee(c.x,c.y,c.z)){
+					terminal.write(c.glyph(), c.x - left, c.y - top, c.color());
+				}else{
+					terminal.write(fov.tile(c.x - left, c.y - top, player.z).glyph(), c.x - left, c.y - top, Color.darkGray);
+				}
 			}
 		}
 		
-//		Old, inefficient code. Loops (Width * Height * Creatures) times.
+//		Old, inefficient code. Loops (Width * Height * Creatures) times. Also no FOV.
 //		for(int x = 0; x < screenWidth; x++){
 //			for(int y = 0; y < screenHeight; y++){
 //				int wx = x + left;
 //				int wy = y + top;
 //				
-//				Creature creature = world.creature(wx,wy);
+//				Creature creature = world.creature(wx,wy,player.z);
 //				if(creature != null){
 //					terminal.write(creature.glyph(), creature.x - left, creature.y - top, creature.color());
 //				} else {
-//					terminal.write(world.glyph(wx,wy), x, y, world.color(wx,wy));
+//					terminal.write(world.glyph(wx,wy,player.z), x, y, world.color(wx,wy,player.z));
 //				}
 //			}
 //		}

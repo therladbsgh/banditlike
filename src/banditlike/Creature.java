@@ -15,6 +15,7 @@ public class Creature {
 	private char glyph;
 	private Color color;
 	private CreatureAi ai;
+	private int visionRadius;
 	
 	//Character stats
 	private int maxHp;
@@ -26,6 +27,8 @@ public class Creature {
 	public char glyph() { return glyph; }
 	public Color color() { return color; }
 	public void setCreatureAi(CreatureAi ai) { this.ai = ai; }
+	public int visionRadius() { return visionRadius; }
+	public void setVisionRadius(int radius) { this.visionRadius = radius; }
 	
 	//Getters for stats
 	public int maxHp() { return maxHp; }
@@ -42,6 +45,7 @@ public class Creature {
 		this.hp = maxHp;
 		this.attackValue = attack;
 		this.defenseValue = defense;
+		this.visionRadius = 9;
 	}
 	
 	//ACTIONS----------------------------------------------------------------------------------------
@@ -146,6 +150,14 @@ public class Creature {
 	
 	public boolean canEnter(int wx, int wy, int wz){
 		return world.tile(wx,wy,wz).isGround() && world.creature(wx,wy,wz) == null;
+	}
+	
+	public boolean canSee(int wx, int wy, int wz){
+		return ai.canSee(wx, wy, wz);
+	}
+	
+	public Tile tile(int wx, int wy, int wz){
+		return world.tile(wx, wy, wz);
 	}
 	
 }

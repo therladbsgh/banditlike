@@ -11,10 +11,10 @@ public class CreatureFactory {
 		this.world = world;
 	}
 	
-	public Creature newPlayer(List<String> messages){
+	public Creature newPlayer(List<String> messages, FieldOfView fov){
 		Creature player = new Creature(world, '@', AsciiPanel.brightWhite, 100, 20, 0);
 		world.addAtEmptyLocation(player,0);
-		new PlayerAi(player, messages);
+		new PlayerAi(player, messages, fov);
 		return player;
 	}
 	

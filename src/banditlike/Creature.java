@@ -16,12 +16,14 @@ public class Creature {
 	private Color color;
 	private CreatureAi ai;
 	private int visionRadius;
+	private String name;
 	
 	//Character stats
 	private int maxHp;
 	private int hp;
 	private int attackValue;
 	private int defenseValue;
+	private Inventory inventory;
 	
 	//Getters for factory characteristics
 	public char glyph() { return glyph; }
@@ -29,6 +31,8 @@ public class Creature {
 	public void setCreatureAi(CreatureAi ai) { this.ai = ai; }
 	public int visionRadius() { return visionRadius; }
 	public void setVisionRadius(int radius) { this.visionRadius = radius; }
+	public String name() { return name; }
+	public Inventory inventory() { return inventory; }
 	
 	//Getters for stats
 	public int maxHp() { return maxHp; }
@@ -37,7 +41,7 @@ public class Creature {
 	public int defenseValue() { return defenseValue; }
 	
 	//Constructor
-	public Creature(World world, char glyph, Color color, int maxHp, int attack, int defense){
+	public Creature(World world, char glyph, Color color, String name, int maxHp, int attack, int defense){
 		this.world = world;
 		this.glyph = glyph;
 		this.color = color;
@@ -45,7 +49,9 @@ public class Creature {
 		this.hp = maxHp;
 		this.attackValue = attack;
 		this.defenseValue = defense;
+		this.name = name;
 		this.visionRadius = 9;
+		this.inventory = new Inventory(20);
 	}
 	
 	//ACTIONS----------------------------------------------------------------------------------------
@@ -54,6 +60,10 @@ public class Creature {
 	}
 	
 	public void moveBy(int mx, int my, int mz){
+		if(mx == 0 && my == 0 && mz == 0){
+			return;
+		}
+		
 		Tile tile = world.tile(x+mx, y+my, z+mz);
 		
 		if(mz == -1){
@@ -86,13 +96,12 @@ public class Creature {
 		amount = (int)(Math.random() * amount) + 1;
 		other.modifyHp(-amount);
 		
-		doAction("attack the '%s' for %d damage", other.glyph, amount);
+		doAction("attack the %s for %d damage", other.name, amount);
 		if(other.hp < 1){
 			other.doAction("die");
 		} else {
-			notify("'%s'\'s HP: %d/%d", other.glyph, other.hp, other.maxHp);
+			notify("HP of %s: %d/%d", other.name, other.hp, other.maxHp);
 		}
-		other.notify("The '%s' attacks you for %d damage.", glyph, amount);
 	}
 	
 	public void modifyHp(int amount){
@@ -107,6 +116,25 @@ public class Creature {
 		ai.onUpdate();
 	}
 	
+	public void pickup(){
+		Item item = world.item(x,y,z);
+		
+		if (inventory.isFull() || item == null) {
+			doAction("grab at the ground");
+		} else {
+			doAction("pick up a %s", item.name());
+			world.remove(x, y, z);
+			inventory.add(item);
+		}
+	}
+	
+	public void drop(Item item){
+		doAction("drop a " + item.name());
+		inventory.remove(item);
+		world.addAtEmptySpace(item, x, y, z);
+		
+	}
+	
 	//MESSAGES ----------------------------------------------------------------------------------
 	
 	public void notify(String message, Object ... params){
@@ -115,9 +143,9 @@ public class Creature {
 	
 	public void doAction(String message, Object ... params){
 		int r = 9;
-		for(int ox = -r; ox < r + 1; ox++){
-			for(int oy = -r; oy < r + 1; oy++){
-				if(ox*ox + oy*oy == r*r){
+		for(int ox = -r; ox <= r; ox++){
+			for(int oy = -r; oy <= r; oy++){
+				if(ox*ox + oy*oy > r*r){
 					continue;
 				}
 				Creature other = world.creature(x+ox,y+oy, z);
@@ -126,7 +154,7 @@ public class Creature {
 				} else if (other == this){
 					other.notify("You " + message + ".", params);
 				} else {
-					other.notify(String.format("The '%s' %s.", glyph, makeSecondPerson(message)), params);
+					other.notify(String.format("The %s %s.", name, makeSecondPerson(message)), params);
 				}
 				
 			}
@@ -158,6 +186,10 @@ public class Creature {
 	
 	public Tile tile(int wx, int wy, int wz){
 		return world.tile(wx, wy, wz);
+	}
+	
+	public Creature creature(int wx, int wy, int wz) {
+	    return world.creature(wx, wy, wz);
 	}
 	
 }

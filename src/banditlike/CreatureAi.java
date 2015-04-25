@@ -10,7 +10,13 @@ public class CreatureAi {
 	}
 	
 	public void onEnter(int x, int y, int z, Tile tile){
-		
+	    if (tile.isGround()){
+	         creature.x = x;
+	         creature.y = y;
+	         creature.z = z;
+	    } else {
+	         creature.doAction("bump into a wall");
+	    }
 	}
 	
 	public void onUpdate(){
@@ -36,6 +42,19 @@ public class CreatureAi {
 			return false;
 		}
 		return true;
+	}
+	
+	public void wander(){
+		int mx = (int)(Math.random() * 3) -1;
+		int my = (int)(Math.random() * 3) -1;
+		
+		Creature other = creature.creature(creature.x + mx, creature.y + my, creature.z);
+		
+		if(other != null && other.glyph() == creature.glyph()){
+			return;
+		}else{
+			creature.moveBy(mx,my,0);
+		}
 	}
 
 }

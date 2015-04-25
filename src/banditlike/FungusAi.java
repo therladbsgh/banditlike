@@ -1,10 +1,10 @@
 package banditlike;
 
 public class FungusAi extends CreatureAi {
-	private CreatureFactory factory;
+	private StuffFactory factory;
 	private int spreadCount;
 	
-	public FungusAi(Creature creature, CreatureFactory factory){
+	public FungusAi(Creature creature, StuffFactory factory){
 		super(creature);
 		this.factory = factory;
 	}

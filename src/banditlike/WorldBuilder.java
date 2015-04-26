@@ -4,6 +4,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Logic for generating a new world.
+ * Although hard to deal with, the generator is only run once and therefore requires little maintenance.
+ * @author Andrew Kim
+ */
+
 public class WorldBuilder {
 	
 	private int width;
@@ -13,6 +19,12 @@ public class WorldBuilder {
 	private int[][][] regions;
 	private int nextRegion;
 	
+	/** 
+	 * Class constructor.
+	 * @param width Width of the world
+	 * @param height Height of the world
+	 * @param depth Depth of the world
+	 */
 	public WorldBuilder(int width, int height, int depth){
 		this.width = width;
 		this.height = height;
@@ -22,10 +34,18 @@ public class WorldBuilder {
 		this.nextRegion = 1;
 	}
 	
+	/**
+	 * Create a new world with the given generated tiles.
+	 * @return New world
+	 */
 	public World build(){
 		return new World(tiles);
 	}
 	
+	/**
+	 * Randomize every tile so it can become a floor or wall at a 50% chance respectively.
+	 * @return
+	 */
 	private WorldBuilder randomizeTiles(){
 		for(int x = 0; x < width; x++){
 			for(int y = 0; y < height; y++){
@@ -37,6 +57,12 @@ public class WorldBuilder {
 		return this;
 	}
 	
+	/**
+	 * Smoothens the map.
+	 * The tile becomes a floor or wall tile depending on what the majority of the nearby tiles are.
+	 * @param times The number of times to smooth the map
+	 * @return This, with tiles updated
+	 */
 	private WorldBuilder smooth(int times){
 		Tile[][][] tempTiles = new Tile[width][height][depth];
 		for(int time = 0 ; time < times; time++){
@@ -68,11 +94,22 @@ public class WorldBuilder {
 		return this;
 	}
 	
+	/**
+	 * Generates caves for the map
+	 * @return This, with tiles updated
+	 */
 	public WorldBuilder makeCaves(){
 		return randomizeTiles().smooth(8).createRegions().connectRegions().addExitStairs();
 	}
 	
 	//CAVES AND REGIONS ----------------------------------------------------------------------------------
+	
+	/**
+	 * Creates a region map.
+	 * Each location has a number that identifies what region / open space it belongs to.
+	 * If the region is too small it gets removed.
+	 * @return This, with updated tiles.
+	 */
 	private WorldBuilder createRegions(){
 		regions = new int[width][height][depth];
 		
@@ -91,6 +128,11 @@ public class WorldBuilder {
 		return this;
 	}
 	
+	/**
+	 * Zeroes the region and fills it so it is no longer a cave.
+	 * @param region Region to remove
+	 * @param z Depth
+	 */
 	private void removeRegion(int region, int z){
 		for (int x = 0; x < width; x++){
 			for (int y = 0; y < height; y++){
@@ -102,6 +144,15 @@ public class WorldBuilder {
 		}
 	}
 	
+	/**
+	 * Fills the region with a given number.
+	 * Any tile it is connected to gets the same region number.
+	 * @param region Region number
+	 * @param x Initial x coordinate
+	 * @param y Initial y coordinate
+	 * @param z Initial z coordinate
+	 * @return The size of the region
+	 */
 	private int fillRegion(int region, int x, int y, int z) {
 		int size = 1;
 		ArrayList<Point> open = new ArrayList<Point>();
@@ -127,6 +178,10 @@ public class WorldBuilder {
 		return size;
 	}
 	
+	/**
+	 * Connect the regions with stairs
+	 * @return This, with updated tiles
+	 */
 	public WorldBuilder connectRegions(){
 		for (int z = 0; z < depth-1; z++){
 			connectRegionsDown(z);
@@ -134,6 +189,11 @@ public class WorldBuilder {
 		return this;
 	}
 	
+	/**
+	 * Connects two adjacent regions.
+	 * Checks each region above another region; if they are not connected, a stair is made.
+	 * @param z The depth to check
+	 */
 	private void connectRegionsDown(int z){
 		List<String> connected = new ArrayList<String>();
 		
@@ -150,6 +210,13 @@ public class WorldBuilder {
 		}
 	}
 	
+	/**
+	 * Gets a list of all overlapping areas.
+	 * Based on how much area overlaps, stairs that goes up and down are made.
+	 * @param z Depth
+	 * @param r1 First region
+	 * @param r2 Second region
+	 */
 	private void connectRegionsDown(int z, int r1, int r2){
 		List<Point> candidates = findRegionOverlaps(z, r1, r2);
 		
@@ -163,6 +230,13 @@ public class WorldBuilder {
 		while (candidates.size() / stairs > 250);
 	}
 
+	/**
+	 * Find which areas of the two regions overlap.
+	 * @param z Depth
+	 * @param r1 First region
+	 * @param r2 Second region
+	 * @return List of overlapping points
+	 */
 	public List<Point> findRegionOverlaps(int z, int r1, int r2) {
 		ArrayList<Point> candidates = new ArrayList<Point>();
 		
@@ -181,6 +255,10 @@ public class WorldBuilder {
 		return candidates;
 	}
 	
+	/**
+	 * Add exit stairs to the topmost layer of the caves.
+	 * @return This, with updated tiles.
+	 */
 	private WorldBuilder addExitStairs() {
 		int x= -1;
 		int y = -1;

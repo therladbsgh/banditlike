@@ -1,8 +1,12 @@
 package banditlike.screens;
 
 import java.awt.event.KeyEvent;
-
 import asciiPanel.AsciiPanel;
+
+/**
+ * The losing screen.
+ * @author Andrew Kim
+ */
 
 public class LoseScreen implements Screen {
 

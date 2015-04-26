@@ -2,6 +2,11 @@ package banditlike;
 
 import java.awt.Color;
 
+/**
+ * The creature class. It should list all properties and actions for a creature.
+ * @author Andrew Kim
+ */
+
 public class Creature {
 	
 	private World world;
@@ -25,22 +30,83 @@ public class Creature {
 	private int defenseValue;
 	private Inventory inventory;
 	
-	//Getters for factory characteristics
+	/**
+	 * Returns the glyph of the creature.
+	 * @return glyph
+	 */
 	public char glyph() { return glyph; }
+	
+	/**
+	 * Returns the color of the creature.
+	 * @return color
+	 */
 	public Color color() { return color; }
+	
+	/**
+	 * Sets the ai of the creature.
+	 * @param ai
+	 */
 	public void setCreatureAi(CreatureAi ai) { this.ai = ai; }
+	
+	/**
+	 * Returns the radius of the field of view.
+	 * @return radius
+	 */
 	public int visionRadius() { return visionRadius; }
+	
+	/**
+	 * Sets the radius of the field of view
+	 * @param radius
+	 */
 	public void setVisionRadius(int radius) { this.visionRadius = radius; }
+	
+	/**
+	 * Returns the name of the creature.
+	 * @return name
+	 */
 	public String name() { return name; }
+	
+	/**
+	 * Returns the inventory of the creature.
+	 * @return inventory
+	 */
 	public Inventory inventory() { return inventory; }
 	
-	//Getters for stats
+	/**
+	 * Returns the max HP of a given creature.
+	 * @return maxHp
+	 */
 	public int maxHp() { return maxHp; }
+	
+	/**
+	 * Returns the current HP of a given creature.
+	 * @return hp
+	 */
 	public int hp() { return hp; }
+	
+	/**
+	 * Returns the attack value of a given creature.
+	 * @return attackValue
+	 */
 	public int attackValue() { return attackValue; }
+	
+	/**
+	 * Returns the defense value of a given creature.
+	 * @return defenseValue
+	 */
 	public int defenseValue() { return defenseValue; }
 	
-	//Constructor
+	/**
+	 * Class constructor. This should only be called in the CreatureFactory / StuffFactory.
+	 * All creatures have a set field of view radius of 9 and an inventory limit of 20 items.
+	 * @param world The world the creature is in
+	 * @param glyph The glyph representing the creature
+	 * @param color The color representing the creature
+	 * @param name The name of the creature
+	 * @param maxHp The max HP of the creature
+	 * @param attack The attack value of the creature
+	 * @param defense The defense value of the creature
+	 */
 	public Creature(World world, char glyph, Color color, String name, int maxHp, int attack, int defense){
 		this.world = world;
 		this.glyph = glyph;
@@ -55,10 +121,23 @@ public class Creature {
 	}
 	
 	//ACTIONS----------------------------------------------------------------------------------------
+	
+	/**
+	 * Digs a certain diggable tile.
+	 * @param wx The x value of the tile
+	 * @param wy The y value of the tile
+	 * @param wz The z value of the tile
+	 */
 	public void dig(int wx, int wy, int wz){
 		world.dig(wx, wy, wz);
 	}
 	
+	/**
+	 * The amount to move by.
+	 * @param mx Change in x
+	 * @param my Change in y
+	 * @param mz Change in z
+	 */
 	public void moveBy(int mx, int my, int mz){
 		if(mx == 0 && my == 0 && mz == 0){
 			return;
@@ -91,6 +170,11 @@ public class Creature {
 		}
 	}
 	
+	/**
+	 * Attacks another creature.
+	 * Amount is any value between 0 and the creature's attack value minus the other's defense value.
+	 * @param other
+	 */
 	public void attack(Creature other){
 		int amount = Math.max(0, attackValue() - other.defenseValue());
 		amount = (int)(Math.random() * amount) + 1;
@@ -104,6 +188,10 @@ public class Creature {
 		}
 	}
 	
+	/**
+	 * Modifies the creature's HP.
+	 * @param amount Amount to modify by (negative equals damaging)
+	 */
 	public void modifyHp(int amount){
 		hp += amount;
 		if(hp < 1){
@@ -112,10 +200,16 @@ public class Creature {
 		}
 	}
 	
+	/**
+	 * Updates the creature.
+	 */
 	public void update(){
 		ai.onUpdate();
 	}
 	
+	/**
+	 * Picks up an item.
+	 */
 	public void pickup(){
 		Item item = world.item(x,y,z);
 		
@@ -128,6 +222,10 @@ public class Creature {
 		}
 	}
 	
+	/**
+	 * Drops an item.
+	 * @param item Item to drop
+	 */
 	public void drop(Item item){
 		doAction("drop a " + item.name());
 		inventory.remove(item);
@@ -137,10 +235,20 @@ public class Creature {
 	
 	//MESSAGES ----------------------------------------------------------------------------------
 	
+	/**
+	 * Notifies the creature of a given message.
+	 * @param message Message to notify
+	 * @param params Any necessary parameters for a formatted string
+	 */
 	public void notify(String message, Object ... params){
 		ai.onNotify(String.format(message, params));
 	}
 	
+	/**
+	 * Displays a message to itself and to others within a radius of 9.
+	 * @param message The message to broadcast
+	 * @param params Any necessary parameters for a formatted string
+	 */
 	public void doAction(String message, Object ... params){
 		int r = 9;
 		for(int ox = -r; ox <= r; ox++){
@@ -161,6 +269,11 @@ public class Creature {
 		}
 	}
 	
+	/**
+	 * Formats a string to make it second person. Grammar may not be always correct.
+	 * @param text The text to format
+	 * @return Formatted second-person text
+	 */
 	private String makeSecondPerson(String text){
 		String[] words = text.split(" ");
 		words[0] = words[0] + "s";
@@ -176,18 +289,46 @@ public class Creature {
 	
 	//CHECKS --------------------------------------------------------------------------------
 	
+	/**
+	 * Checks if a creature can enter a tile
+	 * @param wx The x value of tile
+	 * @param wy The y value of tile
+	 * @param wz The z value of tile
+	 * @return Whether a creature can enter the tile
+	 */
 	public boolean canEnter(int wx, int wy, int wz){
 		return world.tile(wx,wy,wz).isGround() && world.creature(wx,wy,wz) == null;
 	}
 	
+	/**
+	 * Checks if a creature can see a given tile
+	 * @param wx The x value of tile
+	 * @param wy The y value of tile
+	 * @param wz The z value of tile 
+	 * @return Whether the creature can see the tile
+	 */
 	public boolean canSee(int wx, int wy, int wz){
 		return ai.canSee(wx, wy, wz);
 	}
 	
+	/**
+	 * Returns the tile within the given coordinates
+	 * @param wx The x value
+	 * @param wy The y value
+	 * @param wz The z value
+	 * @return The world tile
+	 */
 	public Tile tile(int wx, int wy, int wz){
 		return world.tile(wx, wy, wz);
 	}
 	
+	/**
+	 * Returns the creature within the given coordinates
+	 * @param wx The x value
+	 * @param wy The y value
+	 * @param wz The z value
+	 * @return The world creature
+	 */
 	public Creature creature(int wx, int wy, int wz) {
 	    return world.creature(wx, wy, wz);
 	}

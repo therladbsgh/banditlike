@@ -6,20 +6,56 @@ import asciiPanel.AsciiPanel;
 import banditlike.Creature;
 import banditlike.Item;
 
+/**
+ * The screen to display inventory. 
+ * In most cases, an action will be demanded (what to drop, eat, etc.)
+ * @author Andrew Kim
+ */
+
 public abstract class InventoryBasedScreen implements Screen {
 	
 	protected Creature player;
+	
+	/**
+	 * Letters that represent a character for each item in the inventory.
+	 * A represents the first item, B represents the second item, and so on.
+	 */
 	private String letters;
 	
+	/**
+	 * The "verb" that must be done in this screen (dropping, eating, etc.)
+	 * @return verb
+	 */
 	protected abstract String getVerb();
+	
+	/**
+	 * Check if the item is acceptable for the said verb
+	 * @param item The item selected
+	 * @return Whether the item is appropriate for the verb
+	 */
 	protected abstract boolean isAcceptable(Item item);
+	
+	/**
+	 * The method to use (do the verb) for the selected item.
+	 * @param item The item selected.
+	 * @return The screen to display in the end (if a subscreen, null will return to PlayScreen)
+	 */
 	protected abstract Screen use(Item item);
 	
+	/**
+	 * Class constructor.
+	 * @param player The player to manipulate the inventory.
+	 */
 	public InventoryBasedScreen(Creature player) {
 		this.player = player;
 		this.letters = "abcdefghijklmopqrstuvwxyz";
 	}
 	
+	
+	/**
+	 * Displays the items in the inventory, and suggests what item to select.
+	 */
+	@Override
 	public void displayOutput(AsciiPanel terminal) {
 		ArrayList<String> lines = getList();
 		
@@ -40,6 +76,10 @@ public abstract class InventoryBasedScreen implements Screen {
 		terminal.repaint();
 	}
 	
+	/**
+	 * Returns a list of formatted string that represents the inventory.
+	 * @return
+	 */
 	private ArrayList<String> getList() {
 		ArrayList<String> lines = new ArrayList<String>();
 		Item[] inventory = player.inventory().getItems();
@@ -57,6 +97,12 @@ public abstract class InventoryBasedScreen implements Screen {
 		return lines;
 	}
 	
+	/**
+	 * Response to key input.
+	 * If any character in <code>letters</code> is pressed, the item associated with the letter is used.
+	 * If escape is pressed, the subscreen goes back to PlayScreen.
+	 * Otherwise nothing happens.
+	 */
 	public Screen respondToUserInput(KeyEvent key) {
 		char c = key.getKeyChar();
 		

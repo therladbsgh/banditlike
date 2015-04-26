@@ -4,11 +4,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
 
+/**
+ * Logic for making lines. Used for field of view.
+ * @author Andrew Kim
+ */
+
 public class Line implements Iterable<Point>{
 	
 	private List<Point> points;
 	public List<Point> getPoints() { return points; }
 	
+	/**
+	 * Creates an array of points that represent a line.
+	 * We use Bresenham's line algorithm to find the points within a line.
+	 * @param x0 Initial x value
+	 * @param y0 Initial y value
+	 * @param x1 Final x value
+	 * @param y1 Final y value
+	 */
 	public Line(int x0, int y0, int x1, int y1){
 		points = new ArrayList<Point>();
 		
@@ -38,6 +51,9 @@ public class Line implements Iterable<Point>{
 		}
 	}
 	
+	/**
+	 * Iterates all the points within the line.
+	 */
 	public Iterator<Point> iterator() {
         return points.iterator();
     }

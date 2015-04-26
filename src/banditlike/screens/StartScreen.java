@@ -1,8 +1,12 @@
 package banditlike.screens;
 
 import java.awt.event.KeyEvent;
-
 import asciiPanel.AsciiPanel;
+
+/**
+ * The starting screen, when the program begins.
+ * @author Andrew Kim
+ */
 
 public class StartScreen implements Screen {
 

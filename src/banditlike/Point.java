@@ -4,17 +4,31 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Basic properties for a point. Used to make a line, and ultimately the field of view.
+ * @author Andrew Kim
+ */
+
 public class Point {
 	public int x;
 	public int y;
 	public int z;
 	
+	/**
+	 * Class constructor.
+	 * @param x
+	 * @param y
+	 * @param z
+	 */
 	public Point(int x, int y, int z){
 		this.x = x;
 		this.y = y;
 		this.z = z;
 	}
 	
+	/**
+	 * Overrides the hashCode() method from Object.
+	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -25,6 +39,9 @@ public class Point {
 		return result;
 	}
 
+	/**
+	 * Checks whether it equals another point based on its x, y, and z coordinates.
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -43,6 +60,11 @@ public class Point {
 		return true;
 	}
 
+	/**
+	 * Lists the eight neighboring points of the given point.
+	 * The points are shuffled so no priority is given to a certain direction.
+	 * @return Neighboring points from the eight cardinal directions.
+	 */
 	public List<Point> neighbors8(){
 		List<Point> points = new ArrayList<Point>();
 		

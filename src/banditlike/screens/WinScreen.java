@@ -1,8 +1,12 @@
 package banditlike.screens;
 
 import java.awt.event.KeyEvent;
-
 import asciiPanel.AsciiPanel;
+
+/**
+ * The winning screen.
+ * @author Andrew Kim
+ */
 
 public class WinScreen implements Screen {
 

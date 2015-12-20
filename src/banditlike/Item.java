@@ -14,6 +14,8 @@ public class Item {
 	private Color color;
 	private String name;
 	
+	private int foodValue;
+	
 	/**
 	 * Returns glyph of the item.
 	 * @return glyph
@@ -33,6 +35,12 @@ public class Item {
 	public String name() { return name; }
 	
 	/**
+	 * Returns food value of the item.
+	 * @return foodValue
+	 */
+	public int foodValue() { return foodValue; }
+	
+	/**
 	 * Coass constructor.
 	 * @param glyph
 	 * @param color
@@ -42,6 +50,10 @@ public class Item {
 		this.glyph = glyph;
 		this.color = color;
 		this.name = name;
+	}
+	
+	public void modifyFoodValue(int value) { 
+		foodValue += value; 
 	}
 
 }

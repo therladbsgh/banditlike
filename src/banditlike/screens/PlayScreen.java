@@ -223,14 +223,14 @@ public class PlayScreen implements Screen {
 				int wx = x + left;
 				int wy = y + top;
 				
-				if(player.canSee(wx,wy,player.z)){
-					terminal.write(world.glyph(wx,wy,player.z), x, y, world.color(wx, wy, player.z));
-				}else{
-					terminal.write(fov.tile(wx, wy, player.z).glyph(), x, y, Color.darkGray);
-				}
+//				if (player.canSee(wx,wy,player.z)) {
+//					terminal.write(world.glyph(wx,wy,player.z), x, y, world.color(wx, wy, player.z));
+//				} else {
+//					terminal.write(fov.tile(wx, wy, player.z).glyph(), x, y, Color.darkGray);
+//				}
 				
 				//If you do not want FOV (for debug purposes), uncomment below and comment out the top. 
-				//terminal.write(world.glyph(wx, wy, player.z), x, y, world.color(wx, wy, player.z));
+				terminal.write(world.glyph(wx, wy, player.z), x, y, world.color(wx, wy, player.z));
 			}
 		}
 		

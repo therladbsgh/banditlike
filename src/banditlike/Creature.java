@@ -29,6 +29,8 @@ public class Creature {
 	private int attackValue;
 	private int defenseValue;
 	private Inventory inventory;
+	private int maxFood;
+	private int food;
 	
 	/**
 	 * Returns the glyph of the creature.
@@ -97,6 +99,18 @@ public class Creature {
 	public int defenseValue() { return defenseValue; }
 	
 	/**
+	 * Returns the max food value of a given creature.
+	 * @return maxFood
+	 */
+	public int maxFood() { return maxFood; }
+	
+	/**
+	 * Returns the current food value of a given creature.
+	 * @return food
+	 */
+	public int food() { return food; }
+	
+	/**
 	 * Class constructor. This should only be called in the CreatureFactory / StuffFactory.
 	 * All creatures have a set field of view radius of 9 and an inventory limit of 20 items.
 	 * @param world The world the creature is in
@@ -115,6 +129,8 @@ public class Creature {
 		this.hp = maxHp;
 		this.attackValue = attack;
 		this.defenseValue = defense;
+		this.maxFood = 1000;
+		this.food = maxFood / 3 * 2;
 		this.name = name;
 		this.visionRadius = 9;
 		this.inventory = new Inventory(20);
@@ -188,6 +204,11 @@ public class Creature {
 		}
 	}
 	
+	public void eat(Item item){
+		modifyFood(item.foodValue());
+		inventory.remove(item);
+	}
+	
 	/**
 	 * Modifies the creature's HP.
 	 * @param amount Amount to modify by (negative equals damaging)
@@ -196,7 +217,21 @@ public class Creature {
 		hp += amount;
 		if(hp < 1){
 			hp = 0;
+			leaveCorpse();
 			world.remove(this);
+		}
+	}
+	
+	/**
+	 * Modifies the creature's food value.
+	 * @param amount Amount to modify by (negative equals lowering food value)
+	 */
+	public void modifyFood(int amount){
+		food += amount;
+		if (food > maxFood) {
+			food = maxFood;
+		} else if (food < 1 && isPlayer()) {
+			modifyHp(-1000);
 		}
 	}
 	
@@ -231,6 +266,12 @@ public class Creature {
 		inventory.remove(item);
 		world.addAtEmptySpace(item, x, y, z);
 		
+	}
+	
+	public void leaveCorpse(){
+		Item corpse = new Item('%', color, name + " corpse");
+		corpse.modifyFoodValue(maxHp * 3);
+		world.addAtEmptySpace(corpse, x, y, z);
 	}
 	
 	//MESSAGES ----------------------------------------------------------------------------------
@@ -331,6 +372,14 @@ public class Creature {
 	 */
 	public Creature creature(int wx, int wy, int wz) {
 	    return world.creature(wx, wy, wz);
+	}
+	
+	/**
+	 * Checks if the creature is the player.
+	 * @return whether the creature is the player
+	 */
+	public boolean isPlayer(){
+		return glyph == '@';
 	}
 	
 }
